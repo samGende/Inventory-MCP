@@ -1,4 +1,4 @@
-from utils.api import _save_token_to_cache, _load_token_from_cache, _get_access_token
+from utils.api import _save_token_to_cache, _load_token_from_cache, _get_access_token, zoho_api_request
 
 
 def test_save_load_token_to_cache():
@@ -17,4 +17,19 @@ def test_get_access_token():
 
     assert access_token1 == access_token2, "Access tokens should be the same"
     assert access_token1 is not None, "Access token should not be None"
+
+def test_zoho_api_request():
+    method = "GET"
+    endpoint = "/contacts"
+    params = {}
+    json_data = {}
+    headers = {}
+
+    response = zoho_api_request(method, endpoint, params, json_data, headers)
+
+    assert response is not None, "Response should not be None"
+    assert isinstance(response, dict), "Response should be a dictionary"
+    assert "code" in response, "Response should contain 'code' key"
+    assert response["code"] == 0, "Response code should be 0"
+    assert "contacts" in response, "Response should contain 'contacts' key"
 

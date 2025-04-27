@@ -2,9 +2,70 @@
 import json 
 import time 
 import httpx
+from typing import Dict, Optional
 
 from utils.setting import settings
 
+
+def zoho_api_request(method: str, endpoint: str, params: Optional[Dict[str, any]] = None , json_data: Optional[Dict[str, any]] = None, headers: Optional[Dict[str, str]] = None, retry_auth: bool = True):
+    """Make a request to the Zoho API.
+    
+    Args:
+    method (str): The HTTP method to use (GET, POST, PUT, DELETE).
+    endpoint (str): The API endpoint to call.
+    params (dict, optional): Query parameters to include in the request.
+    json_data (dict, optional): JSON data to include in the request body.
+    headers (dict, optional): Additional headers to include in the request.
+    retry_auth (bool): Whether to retry the request if authentication fails.
+    """
+
+    if params is None:
+        params = {}
+
+    if "organization_id" not in params:
+        params["organization_id"] = settings.ZOHO_ORGANIZATION_ID
+    
+    if not endpoint.startswith('/'):
+        endpoint = '/' + endpoint
+    
+
+    url = f"{settings.ZOHO_API_BASE_URL}{endpoint}"
+
+    try:
+        try:
+            access_token = _get_access_token()
+        except Exception as e:
+            print(f"Error getting access token: {e}")
+
+        request_headers = {
+                "Authorization": f"Zoho-oauthtoken {access_token}",
+                "Content-Type": "application/json",
+        }
+
+        if headers:
+            request_headers.update(headers)
+        
+        with httpx.Client() as client:
+            response = client.request(method, url, params=params, json=json_data, headers=request_headers)
+
+            if response.status_code >= 400:
+                if response.status_code == 401 and retry_auth:
+                    # If the access token is expired, refresh it and retry the request
+                    access_token = _get_access_token()
+                    return zoho_api_request(method, endpoint, params, json_data, headers, retry_auth=False)
+
+            try:
+                result = response.json()
+                return result
+            except json.JSONDecodeError:
+                print("Error decoding JSON response")
+                return None
+    except Exception as e:
+        print(f"Error getting access token: {e}")
+        return None
+
+
+    return None
 
 def _get_access_token():
     """Get the access token from the cache or refresh it if expired."""
