@@ -2,8 +2,11 @@ import os
 from typing import Dict, Any
 from dotenv import load_dotenv
 
+config_path = os.path.join(os.path.dirname(__file__), "../../config")
+env_path = config_path +  "/.env"
 
-env_path = os.path.join(os.path.dirname(__file__), "../../config/.env")
+
+token_cache_path = config_path + "/token_cach.json"
 
 
 if os.path.exists(env_path):
@@ -24,10 +27,11 @@ class Settings:
     ZOHO_API_BASE_URL = os.getenv(
         "ZOHO_API_BASE_URL", "https://www.zohoapis.com/inventory/v1"
     )
-    domain = os.getenv("ZOHO_REGION", "US")
     ZOHO_AUTH_BASE_URL = os.getenv(
-        "ZOHO_AUTH_BASE_URL", f"https://accounts.zoho.{domain}.com/oauth/v2"
+        "ZOHO_AUTH_BASE_URL", f"https://accounts.zoho.com/oauth/v2"
     )
+
+    TOKEN_CACHE_FILE = token_cache_path
 
     def as_dict(self) -> Dict[str, Any]:
         """Return settings as a dictionary."""
