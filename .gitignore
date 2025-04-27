@@ -1,0 +1,10 @@
+
+.DS_Store 
+
+.python-version
+
+__pycache__/
+
+.env
+
+.coverage 
