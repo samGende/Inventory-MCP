@@ -3,7 +3,8 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 
 
-env_path = os.path.join(os.path.dirname(__file__), "../config/.env")
+env_path = os.path.join(os.path.dirname(__file__), "../../config/.env")
+
 
 if os.path.exists(env_path):
     load_dotenv(env_path)
@@ -14,10 +15,10 @@ else:
 
 class Settings:
     # API Credentials
-    ZOHO_CLIENT_ID = os.getenv("ZOHO_CLIENT_ID")
-    ZOHO_CLIENT_SECRET = os.getenv("ZOHO_CLIENT_SECRET")
-    ZOHO_REFRESH_TOKEN = os.getenv("ZOHO_REFRESH_TOKEN")
-    ZOHO_ORGANIZATION_ID = os.getenv("ZOHO_ORGANIZATION_ID")
+    ZOHO_CLIENT_ID:str = os.getenv("ZOHO_CLIENT_ID")
+    ZOHO_CLIENT_SECRET:str = os.getenv("ZOHO_CLIENT_SECRET")
+    ZOHO_REFRESH_TOKEN:str = os.getenv("ZOHO_REFRESH_TOKEN")
+    ZOHO_ORGANIZATION_ID:str = os.getenv("ZOHO_ORGANIZATION_ID")
 
     # ZOHO API URLs
     ZOHO_API_BASE_URL = os.getenv(
