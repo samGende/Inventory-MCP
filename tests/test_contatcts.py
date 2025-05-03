@@ -24,7 +24,6 @@ def test_get_contact():
     assert len(response["contacts"]) > 0, "Response should contain at least one contact"
 
     contact = response.get("contacts", [])[0]
-    print(contact)
     contact_id = contact.get("contact_id")
     assert contact_id, "Contact ID should not be None"
     response = get_contact(contact_id)
