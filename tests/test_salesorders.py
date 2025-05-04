@@ -1,6 +1,7 @@
 import pytest 
 
 from resources.salesorders import list_sales_orders, get_salesorder
+from tools.salesorders import create_sales_order
 
 def test_list_sales_orders():
     search_text = "Sam"
@@ -41,3 +42,24 @@ def test_get_salesorder():
     assert isinstance(response["sales_order"], dict), "'sales_order' should be a dictionary"
     assert "salesorder_id" in response["sales_order"], "'salesorder_id' should be in 'sales_order'"
     assert response["sales_order"]["salesorder_id"] == salesorder_id, "salesorder_id should match the one used in the request"
+
+def test_create_sales_order():
+
+    customer_id = "5982345000000135154"
+
+    item = {'item_id': '5982345000000123546',
+            'quantity': 2,
+            'rate': 26.0,
+            'item_total': 52.0,
+            'tax_id': '5982345000000512015'}
+    line_items = [item]
+
+    response = create_sales_order(customer_id=customer_id, line_items=line_items)
+    assert response is not None, "Response should not be None"
+    assert isinstance(response, dict), "Response should be a dictionary"
+    assert "sales_order" in response, "Response should contain 'sales_order' key"
+    assert isinstance(response["sales_order"], dict), "'sales_order' should be a dictionary"
+    assert "message" in response, "Response should contain 'message' key"
+    assert isinstance(response["message"], str), "'message' should be a string"
+    assert "created" in response["message"].lower(), "'message' should contain 'created'"
+
