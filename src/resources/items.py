@@ -1,10 +1,10 @@
 
-from typing import Optional
+from typing import Optional, Any
 
 from utils.api import zoho_api_request
 
 
-def list_items(page:int = 1, per_page:int = 100, search_text: Optional[str] = None, sort_column: str = "name")-> dict[str, any]:
+def list_items(page:int = 1, per_page:int = 100, search_text: Optional[str] = None, sort_column: str = "name")-> dict[str, Any]:
     """
     List all items in the Zoho Inventory account.
 
@@ -15,7 +15,7 @@ def list_items(page:int = 1, per_page:int = 100, search_text: Optional[str] = No
         sort_column (str): The column to sort by(name, created_time, last_modified_time).
 
     Returns:
-        dict[str, any]: A dictionary containing the list of items and pagination information.
+        dict[str, Any]: A dictionary containing the list of items and pagination information.
     """
     params = {
         "page": page,

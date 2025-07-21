@@ -10,7 +10,7 @@ def get_taxes(page: int = 1, per_page: int = 100):
         page (int): The page number to retrieve for pagination.
         per_page (int): The number of items per page.
     Returns:
-        dict[str, any]: A dictionary containing the list of taxes and pagination information.
+        dict[str, Any]: A dictionary containing the list of taxes and pagination information.
     """
     params = {
         "page": page,

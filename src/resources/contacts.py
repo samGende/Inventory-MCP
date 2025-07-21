@@ -1,8 +1,9 @@
 
 from utils.api import zoho_api_request
+from typing import Any
 
 
-def list_contacts(page: int = 1, per_page: int = 100, sort_column: str = "contact_name", query_params: dict[str, str] = None) -> dict[str, any]:
+def list_contacts(page: int = 1, per_page: int = 100, sort_column: str = "contact_name", query_params: dict[str, str] = None) -> dict[str, Any]:
     """
     List all contacts in the Zoho Inventory account.
 
@@ -21,7 +22,7 @@ def list_contacts(page: int = 1, per_page: int = 100, sort_column: str = "contac
                 - 'last_name': search contacts by last name. Maximum length [100]
 
     Returns:
-        dict[str, any]: A dictionary containing the list of contacts and pagination information.
+        dict[str, Any]: A dictionary containing the list of contacts and pagination information.
     """
     params = {
             "page": page,
@@ -83,7 +84,7 @@ def list_contacts(page: int = 1, per_page: int = 100, sort_column: str = "contac
         print(f"Error listing contacts: {e}")
         return None
 
-def get_contact(contact_id: str) -> dict[str, any]:
+def get_contact(contact_id: str) -> dict[str, Any]:
     """
     Get detailed info about a specific contact with the id. 
 
@@ -91,7 +92,7 @@ def get_contact(contact_id: str) -> dict[str, any]:
         contact_id (str): The ID of the contact to retrieve.
 
     Returns:
-        dict[str, any]: A dictionary containing the contact details.
+        dict[str, Any]: A dictionary containing the contact details.
     """
 
     if not isinstance(contact_id, str):

@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, Any
 
 from utils.api import zoho_api_request
 
-def list_composite_items(page: int = 1, per_page: int = 100, search_text: Optional[str] = None, sort_column: str = "name") -> dict[str, any]:
+def list_composite_items(page: int = 1, per_page: int = 100, search_text: Optional[str] = None, sort_column: str = "name") -> dict[str, Any]:
     """
     List all composite items in the Zoho Inventory account.
 
@@ -13,7 +13,7 @@ def list_composite_items(page: int = 1, per_page: int = 100, search_text: Option
         sort_column (str): The column to sort by(name, sku, rate, purchase_rate).
 
     Returns:
-        dict[str, any]: A dictionary containing the list of composite items and pagination information.
+        dict[str, Any]: A dictionary containing the list of composite items and pagination information.
     """
     #TODO Should sort columns be validated all the time? 
     params = {

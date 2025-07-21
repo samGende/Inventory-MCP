@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, Any
 
 from utils.api import zoho_api_request
 
 
-def list_sales_orders(page: int = 1, per_page: int = 100, search_text: Optional[str] = None, sort_column: str = "date") -> dict[str, any]:
+def list_sales_orders(page: int = 1, per_page: int = 100, search_text: Optional[str] = None, sort_column: str = "date") -> dict[str, Any]:
     """
     List all sales orders in the Zoho Inventory account.
 
@@ -14,7 +14,7 @@ def list_sales_orders(page: int = 1, per_page: int = 100, search_text: Optional[
         sort_column (str): The column to sort by(date, customer_name).
 
     Returns:
-        dict[str, any]: A dictionary containing the list of sales orders and pagination information.
+        dict[str, Any]: A dictionary containing the list of sales orders and pagination information.
     """
 
     params = {
@@ -39,7 +39,7 @@ def list_sales_orders(page: int = 1, per_page: int = 100, search_text: Optional[
     except Exception as e:
         print(f"Error listing sales orders: {e}")
 
-def get_salesorder(salesorder_id: str) -> dict[str, any]:
+def get_salesorder(salesorder_id: str) -> dict[str, Any]:
     """
     Get a sales order by ID.
 
@@ -47,7 +47,7 @@ def get_salesorder(salesorder_id: str) -> dict[str, any]:
         salesorder_id (str): The ID of the sales order to retrieve.
 
     Returns:
-        dict[str, any]: A dictionary containing the sales order details.
+        dict[str, Any]: A dictionary containing the sales order details.
     """
     if not isinstance(salesorder_id, str):
         raise ValueError("salesorder_id must be a string")
