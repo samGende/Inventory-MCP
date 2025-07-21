@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 
-from tools.salesorders import create_sales_order
+from tools.salesorders import create_sales_order, attach_pdf
 from resources.salesorders import list_sales_orders, get_salesorder
 from resources.taxes import get_taxes
 from resources.items import list_items
@@ -10,6 +10,7 @@ from transport import initialize_transport
 
 def register_tools(mcp_server: FastMCP):
     mcp_server.add_tool(create_sales_order)
+    mcp_server.add_tool(attach_pdf)
 
 def register_resources(mcp_server: FastMCP):
     mcp_server.add_tool(list_sales_orders)
@@ -56,7 +57,7 @@ def main():
     print('staring mcp server')
 
     mcp_server.run('stdio')
-    
+    print('the real Inventory mcp server is running') 
 
 if __name__ == "__main__":
         main()
