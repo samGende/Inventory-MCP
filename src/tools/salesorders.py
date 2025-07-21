@@ -4,7 +4,7 @@ from utils.api import zoho_api_request
 
 def create_sales_order(customer_id: str, line_items: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Create a sales order in Zoho Books.
+    Create a sales order in Zoho Inventory.
 
     Args:
         customer_id (str): The ID of the customer.
@@ -61,4 +61,22 @@ def create_sales_order(customer_id: str, line_items: List[Dict[str, Any]]) -> Di
         return result
     except Exception as e:
         print(f"Error creating sales order: {e}")
+        return None
+
+    
+def attach_pdf(salerorder_id: str, file_path: str) -> Dict[str, Any]:
+    """
+    Attach a PDF file to a sales order. 
+
+    Args:
+        salesorder_id (str): The ID of the sales order.
+        file_path (str): The path to the PDF file to attach.
+    Returns:
+        Dict[str, Any]: The response from Zoho Inventory API.
+    
+    """
+    try:
+        response = zoho_api_request('POST', f'/salesorders/{salerorder_id}/attachment', json_data={"file_path": file_path})
+        return response
+    except Exception as e:  
         return None

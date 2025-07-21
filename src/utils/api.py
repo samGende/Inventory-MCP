@@ -36,17 +36,42 @@ def zoho_api_request(method: str, endpoint: str, params: Optional[Dict[str, any]
             access_token = _get_access_token()
         except Exception as e:
             print(f"Error getting access token: {e}")
-
-        request_headers = {
+        
+        # if json data has a file path then don't include content type 
+        # and set files to be  & timeout needs to be set appropriately
+        """{attachment": (
+            "#1182.pdf", 
+            open("./POs/#1182.pdf", "rb"), 
+            "application/pdf"
+        )
+            }"""
+        if json_data and "file_path" in json_data:
+            request_headers = {
+                "Authorization": f"Zoho-oauthtoken {access_token}",
+            }
+            timeout = 60
+            #this may be os dependent
+            files = {
+                "attachment": (
+                    json_data["file_path"].split("/")[-1], 
+                    open(json_data["file_path"], "rb"), 
+                    "application/pdf"
+                )
+            }
+            json_data = None  # Clear json_data since we're using files
+        else:
+            request_headers = {
                 "Authorization": f"Zoho-oauthtoken {access_token}",
                 "Content-Type": "application/json",
         }
+            timeout = 10
+            files = None
 
         if headers:
             request_headers.update(headers)
         
         with httpx.Client() as client:
-            response = client.request(method, url, params=params, json=json_data, headers=request_headers)
+            response = client.request(method, url, params=params, json=json_data, headers=request_headers, files = files, timeout=timeout)
 
             if response.status_code >= 400:
                 if response.status_code == 401 and retry_auth:
@@ -113,6 +138,7 @@ def _get_access_token():
     except httpx.HTTPStatusError as e:
         print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
         return None
+
 
 
 

@@ -1,7 +1,20 @@
 import pytest 
 
 from resources.salesorders import list_sales_orders, get_salesorder
-from tools.salesorders import create_sales_order
+from tools.salesorders import create_sales_order, attach_pdf
+
+def test_attach_pdf():
+    salesorder_id = "5982345000000586002"  # Example sales order ID
+    file_path = "./POs/#1182.pdf"  # Path to the PDF file to attach
+
+    response = attach_pdf(salesorder_id, file_path)
+
+    assert response is not None, "Response should not be None"
+    assert isinstance(response, dict), "Response should be a dictionary"
+    assert "message" in response, "Response should contain 'message' key"
+    assert isinstance(response["message"], str), "'message' should be a string"
+    assert "attached" in response["message"].lower(), "'message' should contain 'attachment added'"
+
 
 def test_list_sales_orders():
     search_text = "Sam"
