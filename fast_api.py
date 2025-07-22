@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
+from typing import Optional
 from pathlib import Path
 import shutil, asyncio
 from dotenv import load_dotenv
@@ -52,27 +53,29 @@ def kick_off_agent(pdf_path: Path) -> None:
 # ---------- the upload endpoint ----------
 @app.post("/po")
 async def upload_po(
-    file: UploadFile = File(...),
     background_tasks: BackgroundTasks = BackgroundTasks(),
+    file: Optional[UploadFile] = File(None),
 ):
-    dest_path = UPLOAD_DIR / file.filename
+    if file is not None:
+        dest_path = UPLOAD_DIR / file.filename
 
-    try:
-        with dest_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to save file: {exc}")
-    finally:
-        await file.close()
+        try:
+            with dest_path.open("wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Failed to save file: {exc}")
+        finally:
+            await file.close()
 
-    # hand work off to the background so the caller isn’t kept waiting
-    background_tasks.add_task(kick_off_agent, dest_path)
+        # hand work off to the background so the caller isn’t kept waiting
+        background_tasks.add_task(kick_off_agent, dest_path)
 
-    return {
-        "filename": file.filename,
-        "saved_to": str(dest_path),
-        "agent_task": "started",
-    }
+        return {
+            "filename": file.filename,
+            "saved_to": str(dest_path),
+            "agent_task": "started",
+        }
+    return {"mode": "setup", "detail": "No file supplied; setup tasks started."}
 
 @app.get("/test")
 async def test_endpoint():
