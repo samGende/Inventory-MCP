@@ -5,6 +5,8 @@ import shutil, asyncio
 from dotenv import load_dotenv
 from pydantic_ai import Agent, BinaryContent
 from pydantic_ai.mcp import MCPServerStdio
+import os
+import re
 
 app = FastAPI()
 
@@ -18,7 +20,7 @@ load_dotenv()                                              # pull API keys etc. 
 server = MCPServerStdio(
     "uv",
     args=["run", "--python", "3.12",
-          "/Users/samg/Documents/dev/Inventory-MCP/src/server.py"],
+          os.getenv("MCP_SERVER_FILE_PATH")],
 )
 agent = Agent("anthropic:claude-3-5-haiku-latest", mcp_servers=[server])
 
@@ -32,6 +34,8 @@ async def agent_flow(pdf_path: Path) -> None:
         prompt = (
             "Can you create a sales order for this PO? "
             "And then attach the pdf to the salesorder. "
+            "Please also include the SO id within your final response."
+            "It should be in the format: salserder_id:{{id}} Make sure the id is surounded by {{}}"
             f"The file path to the pdf is {pdf_path}"
         )
 
@@ -43,6 +47,16 @@ async def agent_flow(pdf_path: Path) -> None:
         )
     # Whatever you want to do with the agent’s answer:
     print(f"Agent output for {pdf_path.name}:\n{result.output}")
+
+    #print(f"Agent messages for {pdf_path.name}: \n")
+    #for message in result.all_messages():
+    #    print(f"{message}")
+
+    m = re.search(r'\{{(.*?)\}}', result.output)
+    if m:
+        print('SO id:', m.group(0).replace('{{', '').replace('}}', ''))
+    else:
+        print("No SO id found in agent output. Alert User to check po Manually")
 
 
 def kick_off_agent(pdf_path: Path) -> None:
