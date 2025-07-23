@@ -67,29 +67,29 @@ def kick_off_agent(pdf_path: Path) -> None:
 # ---------- the upload endpoint ----------
 @app.post("/po")
 async def upload_po(
-    background_tasks: BackgroundTasks = BackgroundTasks(),
-    file: Optional[UploadFile] = File(None),
+    background_tasks: BackgroundTasks,
+    content: Optional[UploadFile] = File(None, alias="content"),  # <-- renamed
 ):
-    if file is not None:
-        dest_path = UPLOAD_DIR / file.filename
+    if content is None:                          # “setup-only” request
+        return {"mode": "setup", "detail": "No file supplied; setup tasks started."}
 
-        try:
-            with dest_path.open("wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=f"Failed to save file: {exc}")
-        finally:
-            await file.close()
+    dest_path = UPLOAD_DIR / content.filename
+    try:
+        with dest_path.open("wb") as buf:
+            shutil.copyfileobj(content.file, buf)
+    except Exception as exc:
+        raise HTTPException(500, f"Failed to save file: {exc}")
+    finally:
+        await content.close()
 
-        # hand work off to the background so the caller isn’t kept waiting
-        background_tasks.add_task(kick_off_agent, dest_path)
+    background_tasks.add_task(kick_off_agent, dest_path)
+    return {
+        "mode": "upload",
+        "filename": content.filename,
+        "saved_to": str(dest_path),
+        "agent_task": "started",
+    }
 
-        return {
-            "filename": file.filename,
-            "saved_to": str(dest_path),
-            "agent_task": "started",
-        }
-    return {"mode": "setup", "detail": "No file supplied; setup tasks started."}
 
 @app.get("/test")
 async def test_endpoint():
