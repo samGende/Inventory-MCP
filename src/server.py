@@ -57,7 +57,6 @@ def main():
     print('staring mcp server')
 
     mcp_server.run('stdio')
-    print('the real Inventory mcp server is running') 
 
 if __name__ == "__main__":
         main()
