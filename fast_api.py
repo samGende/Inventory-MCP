@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from typing import Optional
 from pathlib import Path
+import httpx
 import shutil, asyncio
 from dotenv import load_dotenv
 from pydantic_ai import Agent, BinaryContent
@@ -36,6 +37,7 @@ async def agent_flow(pdf_path: Path) -> None:
             "And then attach the pdf to the salesorder. "
             "Please also include the SO id within your final response."
             "It should be in the format: salserder_id:{{id}} Make sure the id is surounded by {{}}"
+            "If you can't find a customer that seeems right don't create the sales order"
             f"The file path to the pdf is {pdf_path}"
         )
 
@@ -45,18 +47,21 @@ async def agent_flow(pdf_path: Path) -> None:
              BinaryContent(data=pdf_bytes, media_type="application/pdf"),
              BinaryContent(data=pdf_bytes, media_type="application/pdf")]
         )
-    # Whatever you want to do with the agent’s answer:
+    # post this to a webhook ?  
     print(f"Agent output for {pdf_path.name}:\n{result.output}")
-
-    #print(f"Agent messages for {pdf_path.name}: \n")
-    #for message in result.all_messages():
-    #    print(f"{message}")
-
+    
     m = re.search(r'\{{(.*?)\}}', result.output)
     if m:
-        print('SO id:', m.group(0).replace('{{', '').replace('}}', ''))
+        id = m.group(0).replace('{{', '').replace('}}', '')
+        print('SO id:', id)
     else:
         print("No SO id found in agent output. Alert User to check po Manually")
+        id = None 
+    # post to a webhook after the agent has run 
+    webhook_url = os.getenv("WEBHOOK_URL")
+
+    if webhook_url:
+        httpx.post(webhook_url, data={'message': result.output, 'salesorder_id': id})
 
 
 def kick_off_agent(pdf_path: Path) -> None:
