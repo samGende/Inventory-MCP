@@ -37,6 +37,7 @@ async def agent_flow(pdf_path: Path) -> None:
             "And then attach the pdf to the salesorder. "
             "Please also include the SO id within your final response."
             "It should be in the format: salserder_id:{{id}} Make sure the id is surounded by {{}}"
+            "It would also be good if you give a summary of what you did and the SO Number of the order you created"
             "If you can't find a customer that seeems right don't create the sales order"
             f"The file path to the pdf is {pdf_path}"
         )
@@ -61,7 +62,7 @@ async def agent_flow(pdf_path: Path) -> None:
     webhook_url = os.getenv("WEBHOOK_URL")
 
     if webhook_url:
-        httpx.post(webhook_url, data={'message': result.output, 'salesorder_id': id})
+        httpx.post(webhook_url, json={'message': result.output, 'salesorder_id': id})
 
 
 def kick_off_agent(pdf_path: Path) -> None:
