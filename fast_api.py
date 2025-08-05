@@ -1,13 +1,15 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
-from typing import Optional
+from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Form, Request, Header, Body
+from typing import Optional, Any, Annotated
 from pathlib import Path
 import httpx
 import shutil, asyncio
 from dotenv import load_dotenv
+from pydantic import BaseModel
 from pydantic_ai import Agent, BinaryContent
 from pydantic_ai.mcp import MCPServerStdio
 import os
 import re
+
 
 app = FastAPI()
 
@@ -26,7 +28,7 @@ server = MCPServerStdio(
 agent = Agent("anthropic:claude-3-5-haiku-latest", mcp_servers=[server])
 
 
-async def agent_flow(pdf_path: Path) -> None:
+async def agent_flow(pdf_path: Path, subject: str, html: str) -> None:
     """
     Async coroutine that talks to the MCP server + Pydantic-AI agent
     for a freshly-uploaded PO PDF.
@@ -34,7 +36,10 @@ async def agent_flow(pdf_path: Path) -> None:
     async with agent.run_mcp_servers():
         prompt = (
             "Can you create a sales order for this PO? "
-            "And then attach the pdf to the salesorder. "
+            "But before you create the order you should search if there is a salesorder with the same online order number, using the custom field id {cf_online_order}" 
+            "The online Order number should be listed within the subject of the email if it isn't don't search for the online order number"
+            f"The is the subject of the email: ({subject})"
+            "After creating a salesorder then attach the pdf to the salesorder. "
             "Please also include the SO id within your final response."
             "It should be in the format: salserder_id:{{id}} Make sure the id is surounded by {{}}"
             "It would also be good if you give a summary of what you did and the SO Number of the order you created"
@@ -65,16 +70,17 @@ async def agent_flow(pdf_path: Path) -> None:
         httpx.post(webhook_url, json={'message': result.output, 'salesorder_id': id})
 
 
-def kick_off_agent(pdf_path: Path) -> None:
+def kick_off_agent(pdf_path: Path, subject: str, html: str) -> None:
     """Sync wrapper so FastAPI BackgroundTasks can fire our async workflow."""
-    asyncio.run(agent_flow(pdf_path))
-
+    asyncio.run(agent_flow(pdf_path, subject, html))
 
 # ---------- the upload endpoint ----------
 @app.post("/po")
 async def upload_po(
     background_tasks: BackgroundTasks,
     content: Optional[UploadFile] = File(None, alias="content"),  # <-- renamed
+    subject: Annotated[str, Body()] = None,
+    html: Annotated[str, Body()] = None,
 ):
     if content is None:                          # “setup-only” request
         return {"mode": "setup", "detail": "No file supplied; setup tasks started."}
@@ -83,12 +89,15 @@ async def upload_po(
     try:
         with dest_path.open("wb") as buf:
             shutil.copyfileobj(content.file, buf)
+            print("file copied to server")
+            print(f"subject is {subject}")
+            print(f"html is {html}")
     except Exception as exc:
         raise HTTPException(500, f"Failed to save file: {exc}")
     finally:
         await content.close()
 
-    background_tasks.add_task(kick_off_agent, dest_path)
+    background_tasks.add_task(kick_off_agent, dest_path, subject, html)
     return {
         "mode": "upload",
         "filename": content.filename,
