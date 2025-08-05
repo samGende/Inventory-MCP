@@ -44,6 +44,7 @@ async def agent_flow(pdf_path: Path, subject: str, html: str) -> None:
             "It should be in the format: salserder_id:{{id}} Make sure the id is surounded by {{}}"
             "It would also be good if you give a summary of what you did and the SO Number of the order you created"
             "If you can't find a customer that seeems right don't create the sales order"
+            "When searching for an item you should prefer K blades vs Z Names those will show up better in searches"
             f"The file path to the pdf is {pdf_path}"
         )
 
