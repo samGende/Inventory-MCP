@@ -67,7 +67,7 @@ def test_create_sales_order():
             'tax_id': '5982345000000512015'}
     line_items = [item]
 
-    response = create_sales_order(customer_id=customer_id, line_items=line_items)
+    response = create_sales_order(customer_id=customer_id, line_items=line_items, po_number="PO-1234")
     assert response is not None, "Response should not be None"
     assert isinstance(response, dict), "Response should be a dictionary"
     assert "sales_order" in response, "Response should contain 'sales_order' key"

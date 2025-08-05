@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 
 from utils.api import zoho_api_request
 
-def create_sales_order(customer_id: str, line_items: List[Dict[str, Any]]) -> Dict[str, Any]:
+def create_sales_order(customer_id: str, line_items: List[Dict[str, Any]], po_number: str= None) -> Dict[str, Any]:
     """
     Create a sales order in Zoho Inventory.
 
@@ -15,6 +15,7 @@ def create_sales_order(customer_id: str, line_items: List[Dict[str, Any]]) -> Di
                 - rate: The rate of the item.
                 - item_total: The total amount for the item.
                 - tax_id: The ID of the tax.
+        po_number (str, optional): The purchase order number. Defaults to None.
 
     Returns:
         Dict[str, Any]: The response from Zoho Books API.
@@ -50,6 +51,10 @@ def create_sales_order(customer_id: str, line_items: List[Dict[str, Any]]) -> Di
     data = {
         "customer_id": customer_id,
         "line_items": line_items,
+        "custom_fields": [{
+         "customfield_id": "5982345000000091260",
+         "value": po_number if po_number else "",
+        }]
     }
 
     try:
