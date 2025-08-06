@@ -17,7 +17,7 @@ def get_taxes(page: int = 1, per_page: int = 100):
         "per_page": per_page,
     }
     try:
-        response = zoho_api_request("GET", "/taxes", params=params)
+        response = zoho_api_request("GET", "/settings/taxes", params=params)
         result = {
             "page": page,
             "per_page": per_page,
